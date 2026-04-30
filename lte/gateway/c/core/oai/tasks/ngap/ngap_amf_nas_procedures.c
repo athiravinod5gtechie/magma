@@ -337,11 +337,9 @@ status_code_e ngap_amf_handle_uplink_nas_transport(
 }
 
 //------------------------------------------------------------------------------
-status_code_e ngap_amf_handle_nas_non_delivery(ngap_state_t* state,
-                                               __attribute__((unused))
-                                               sctp_assoc_id_t assoc_id,
-                                               sctp_stream_id_t stream,
-                                               Ngap_NGAP_PDU_t* pdu) {
+status_code_e ngap_amf_handle_nas_non_delivery(
+    ngap_state_t* state, __attribute__((unused)) sctp_assoc_id_t assoc_id,
+    sctp_stream_id_t stream, Ngap_NGAP_PDU_t* pdu) {
   Ngap_NASNonDeliveryIndication_t* container;
   Ngap_NASNonDeliveryIndication_IEs_t *ie = NULL, *ie_nas_pdu;
   m5g_ue_description_t* ue_ref = NULL;
@@ -366,19 +364,32 @@ status_code_e ngap_amf_handle_nas_non_delivery(ngap_state_t* state,
   }
   NGAP_FIND_PROTOCOLIE_BY_ID(Ngap_NASNonDeliveryIndication_IEs_t, ie, container,
                              Ngap_ProtocolIE_ID_id_AMF_UE_NGAP_ID, true);
+  if (!ie) {
+    OAILOG_FUNC_RETURN(LOG_NGAP, RETURNerror);
+  }
 
   asn_INTEGER2ulong(&ie->value.choice.AMF_UE_NGAP_ID,
                     (unsigned long*)&amf_ue_ngap_id);
 
   NGAP_FIND_PROTOCOLIE_BY_ID(Ngap_NASNonDeliveryIndication_IEs_t, ie, container,
                              Ngap_ProtocolIE_ID_id_RAN_UE_NGAP_ID, true);
+  if (!ie) {
+    OAILOG_FUNC_RETURN(LOG_NGAP, RETURNerror);
+  }
   gnb_ue_ngap_id = ie->value.choice.RAN_UE_NGAP_ID;
 
   NGAP_FIND_PROTOCOLIE_BY_ID(Ngap_NASNonDeliveryIndication_IEs_t, ie_nas_pdu,
                              container, Ngap_ProtocolIE_ID_id_NAS_PDU, true);
+  if (!ie_nas_pdu) {
+    OAILOG_FUNC_RETURN(LOG_NGAP, RETURNerror);
+  }
 
   NGAP_FIND_PROTOCOLIE_BY_ID(Ngap_NASNonDeliveryIndication_IEs_t, ie, container,
                              Ngap_ProtocolIE_ID_id_Cause, true);
+  if (!ie) {
+    OAILOG_FUNC_RETURN(LOG_NGAP, RETURNerror);
+  }
+
   OAILOG_NOTICE(LOG_NGAP,
                 "Received NGAP NAS_NON_DELIVERY_INDICATION message "
                 "AMF_UE_NGAP_ID " AMF_UE_NGAP_ID_FMT
@@ -407,8 +418,8 @@ status_code_e ngap_amf_handle_nas_non_delivery(ngap_state_t* state,
 
   // TODO: forward NAS PDU to NAS
   ngap_amf_itti_nas_non_delivery_ind(
-      amf_ue_ngap_id, ie->value.choice.NAS_PDU.buf,
-      ie->value.choice.NAS_PDU.size, &ie->value.choice.Cause, imsi64);
+      amf_ue_ngap_id, ie_nas_pdu->value.choice.NAS_PDU.buf,
+      ie_nas_pdu->value.choice.NAS_PDU.size, &ie->value.choice.Cause, imsi64);
   OAILOG_FUNC_RETURN(LOG_NGAP, RETURNok);
 }
 

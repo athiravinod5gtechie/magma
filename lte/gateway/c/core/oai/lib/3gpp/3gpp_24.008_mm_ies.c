@@ -543,6 +543,7 @@ int decode_emergency_number_list_ie(
     emergency_number_list_t* emergencynumberlist, const bool iei_present,
     uint8_t* buffer, const uint32_t len) {
   int decoded = 0;
+  int signed_len = len;
   uint8_t ielen = 0;
   emergency_number_list_t* e = emergencynumberlist;
 
@@ -560,7 +561,13 @@ int decode_emergency_number_list_ie(
   decoded++;
   CHECK_LENGTH_DECODER(len - decoded, ielen);
 
+  CHECK_PDU_POINTER_AND_MAX_LENGTH_DECODER(
+      buffer + decoded, EMERGENCY_NUMBER_MAX_DIGITS, len - decoded);
+
   e->lengthofemergencynumberinformation = *(buffer + decoded);
+  CHECK_LENGTH_DECODER(signed_len - decoded,
+                       e->lengthofemergencynumberinformation);
+
   decoded++;
   emergencynumberlist->emergencyservicecategoryvalue =
       *(buffer + decoded) & 0x1f;
@@ -573,7 +580,9 @@ int decode_emergency_number_list_ie(
        i < EMERGENCY_NUMBER_MAX_DIGITS; i++) {
     e->number_digit[i] = 0xFF;
   }
-  Fatal("TODO emergency_number_list_t->next");
+
+  // implement emergency_number_list_t->next
+  return TLV_PROTOCOL_NOT_SUPPORTED;
 
   return decoded;
 }
@@ -586,7 +595,9 @@ int encode_emergency_number_list_ie(
   uint32_t encoded = 0;
   emergency_number_list_t* e = emergencynumberlist;
 
-  Fatal("TODO Implement encode_emergency_number_list_ie");
+  // implement encode_emergency_number_list_ie
+  return TLV_PROTOCOL_NOT_SUPPORTED;
+
   if (iei_present) {
     CHECK_PDU_POINTER_AND_LENGTH_ENCODER(
         buffer, EMERGENCY_NUMBER_LIST_IE_MIN_LENGTH, len);

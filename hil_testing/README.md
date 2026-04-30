@@ -1,3 +1,7 @@
+> **Deprecation Notice:** The HIL (Hardware in Loop) testing infrastructure
+> is deprecated and scheduled for removal. This documentation is retained
+> for historical reference only.
+
 # Magma Spirent Testing
 
 NOTE: The code is submited as-is. At the time of writing this README file, the SANITY test suite was fully functional. As long as the architecture  described in this readme is replicated, the expectation is that the test cases will continue to function.
@@ -34,7 +38,7 @@ We can retrieve log and Grafana metrics for each run by clicking on test run res
 
 ### Tests run
 
-To setup HIL worker follow [instruction](https://github.com/fbcinternal/ens_magma/tree/master/spirent_automation)
+To setup HIL worker follow instruction [internal repository — no longer available]
 Current test categories supported are:
 
 1. Sanity (every new build, run time - 30 minutes) updates badge with latest result on magma main README

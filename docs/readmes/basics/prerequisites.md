@@ -31,16 +31,16 @@ Development can occur from multiple OS's, where **macOS** and **Ubuntu** are **e
    4. [Vagrant](https://vagrantup.com)
 
    ```bash
-   brew install go@1.20 pyenv
+   brew install go@1.21 pyenv
    # NOTE: this assumes you're using zsh.
    # See the above pyenv install instructions if using alternative shells.
-   echo 'export PATH="/usr/local/opt/go@1.20/bin:$PATH"' >> ~/.zshrc
+   echo 'export PATH="/usr/local/opt/go@1.21/bin:$PATH"' >> ~/.zshrc
    echo 'eval "$(pyenv init --path)"' >> ~/.zprofile
    echo 'eval "$(pyenv init -)"' >> ~/.zshrc
    exec $SHELL
    # IMPORTANT: close your terminal tab and open a new one before continuing
-   pyenv install 3.8.10
-   pyenv global 3.8.10
+   pyenv install 3.10.13
+   pyenv global 3.10.13
    pip3 install ansible fabric jsonpickle requests PyYAML
    vagrant plugin install vagrant-vbguest vagrant-disksize vagrant-reload
    ```
@@ -61,18 +61,18 @@ Development can occur from multiple OS's, where **macOS** and **Ubuntu** are **e
    1. [Docker and Docker Compose](https://docs.docker.com/engine/install/ubuntu/)
    2. [VirtualBox](https://www.virtualbox.org/wiki/Linux_Downloads)
    3. [Vagrant](https://www.vagrantup.com/downloads)
-2. Install golang version 1.20.1.
+2. Install golang version 1.21.12.
 
    1. Download the tar file.
 
       ```bash
-      wget https://linuxfoundation.jfrog.io/artifactory/magma-blob/go1.20.1.linux-amd64.tar.gz
+      wget https://go.dev/dl/go1.21.12.linux-amd64.tar.gz
       ```
 
    2. Extract the archive you downloaded into `/usr/local`, creating a Go tree in `/usr/local/go`.
 
       ```bash
-      sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.20.1.linux-amd64.tar.gz
+      sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.21.12.linux-amd64.tar.gz
       ```
 
    3. Add `/usr/local/go/bin` to the PATH environment variable.
@@ -90,7 +90,7 @@ Development can occur from multiple OS's, where **macOS** and **Ubuntu** are **e
       You should expect something like this
 
       ```bash
-      go version go1.20.1 linux/amd64
+      go version go1.21.12 linux/amd64
       ```
 
 3. Install `pyenv`.
@@ -124,11 +124,11 @@ Development can occur from multiple OS's, where **macOS** and **Ubuntu** are **e
       exec "$SHELL"
       ```
 
-   5. Create python virtual environment version 3.8.10.
+   5. Create python virtual environment version 3.10.13.
 
       ```bash
-      pyenv install 3.8.10
-      pyenv global 3.8.10
+      pyenv install 3.10.13
+      pyenv global 3.10.13
       ```
 
         **Note**: The `pyenv` installation [might fail with a segmentation fault](https://github.com/pyenv/pyenv/issues/2046). Try using `CFLAGS="-O2" pyenv install 3.8.10` in that case.

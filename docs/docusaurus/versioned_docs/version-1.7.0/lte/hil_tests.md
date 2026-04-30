@@ -5,6 +5,10 @@ hide_title: true
 original_id: HIL_AGW_tests
 ---
 
+> **Deprecation Notice:** The HIL (Hardware in Loop) testing infrastructure
+> is deprecated and scheduled for removal. This documentation is retained
+> for historical reference only.
+
 # Hardware In Loop Tests
 
 Current testing workflow for HIL testing is using Spirent test center to emulate eNodeB, UE and Network host to run scale and performance tests. HIL is focusing on Magma AGW.
@@ -24,7 +28,7 @@ executed in worker node in FB lab. Reports and logs are pushed out to AWS S3 for
 
 ### Run tests
 
-To setup HIL worker follow [instruction](https://github.com/fbcinternal/ens_magma/tree/master/spirent_automation)
+To setup HIL worker follow instruction [internal repository — no longer available]
 Current Test categories supported are:
 
 1. Sanity (every new build, run time - 30 minutes) updates badge with latest result on magma main README

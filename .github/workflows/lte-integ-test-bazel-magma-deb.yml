@@ -23,12 +23,13 @@ on:
 jobs:
   lte-integ-test-bazel-magma-deb:
     if: github.repository_owner == 'magma' || github.event_name == 'workflow_dispatch'
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v3.1.0
         with:
           ref: ${{ github.event.client_payload.trigger_sha || github.sha }}
-
+      - name: Maximize build space
+        uses: ./.github/workflows/composite/maximize-build-space
       - name: Cache magma-deb-box
         uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # pin@v3.0.11
         with:
@@ -51,11 +52,15 @@ jobs:
 
       - uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # pin@v4.3.0
         with:
-          python-version: '3.8.10'
+          python-version: '3.10.12'
       - name: Install pre requisites
         run: |
           pip3 install --upgrade pip
           pip3 install ansible fabric jsonpickle requests PyYAML firebase_admin
+          sudo apt update && sudo apt install virtualbox
+          wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update && sudo apt install vagrant
           vagrant plugin install vagrant-vbguest vagrant-disksize vagrant-reload
       - name: Open up network interfaces for VM
         run: |
@@ -75,6 +80,7 @@ jobs:
             export MAGMA_PACKAGE=magma=${{ github.event.client_payload.magma_version }}
           fi
           echo "Starting integration tests using magma artifact \"${MAGMA_PACKAGE}\"."
+          [ -f ~/.ssh/id_rsa.pub ] || ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa -q
           fab integ-test-deb-installation
 
       - name: Get test results
@@ -84,7 +90,7 @@ jobs:
           fab get-test-summaries --integration-tests
           ls -R
       - name: Upload test results
-        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # pin@v3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # pin@v4
         if: always()
         with:
           name: test_results
@@ -103,7 +109,7 @@ jobs:
           cd lte/gateway
           fab get-test-logs --gateway-host-name=magma_deb --dst-path=./logs.tar.gz
       - name: Upload test logs
-        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # pin@v3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # pin@v4
         if: always()
         with:
           name: test-logs
@@ -120,13 +126,3 @@ jobs:
           [ -f "$REPORT_FILENAME" ] && { python ci-scripts/firebase_upload_file.py -f "$REPORT_FILENAME" -o out_url.txt; }
           [ -f "out_url.txt" ] && { URL=$(cat out_url.txt); }
           python ci-scripts/firebase_publish_report.py -id ${{ github.event.client_payload.trigger_sha }} --verdict ${{ job.status }} --run_id ${{ github.run_id }} debian_lte_integ_test --url $URL
-
-      - name: Notify failure to slack
-        if: failure() && github.repository_owner == 'magma'
-        uses: Ilshidur/action-slack@689ad44a9c9092315abd286d0e3a9a74d31ab78a # pin@2.1.0
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_USERNAME: ${{ github.workflow }}
-          SLACK_AVATAR: ":boom:"
-        with:
-          args: "Bazel Debian LTE integration tests failed in run <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|${{github.run_id}}> from commit ${{ github.event.client_payload.trigger_sha }}: ${{ github.event.client_payload.commit_message }}"

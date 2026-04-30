@@ -39,6 +39,7 @@ type AmcManager interface {
 	CreateRequest(sq.BaseRunner, *MutableRequest) error
 	DeleteCbsd(sq.BaseRunner, *DBCbsd) error
 	UpdateCbsd(sq.BaseRunner, *DBCbsd, db.FieldMask) error
+	DeleteGrant(runner sq.BaseRunner, grant *DBGrant) error
 }
 
 type MutableRequest struct {
@@ -130,6 +131,10 @@ func (m *amcManager) GetState(tx sq.BaseRunner) ([]*DetailedCbsd, error) {
 	return runner.getState()
 }
 
+func (m *amcManager) DeleteGrant(tx sq.BaseRunner, grant *DBGrant) error {
+	return nil
+}
+
 func notNull(fields ...string) sq.Sqlizer {
 	filters := make(sq.And, len(fields))
 	for i, f := range fields {
@@ -161,7 +166,10 @@ func (r *queryRunner) getState() ([]*DetailedCbsd, error) {
 			Select(db.NewIncludeMask("grant_id", "heartbeat_interval", "last_heartbeat_request_time", "low_frequency", "high_frequency")).
 			Join(db.NewQuery().
 				From(&DBGrantState{}).
-				On(db.On(GrantTable, "state_id", GrantStateTable, "id")).
+				On(sq.And{
+					db.On(GrantTable, "state_id", GrantStateTable, "id"),
+					sq.NotEq{GrantStateTable + ".name": "idle"},
+				}).
 				Select(db.NewIncludeMask("name"))).
 			Nullable()).
 		Nullable().

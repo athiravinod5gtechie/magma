@@ -15,5 +15,6 @@
 export {default as organizationMiddleware} from './organizationMiddleware';
 export {default as appMiddleware} from './appMiddleware';
 export {default as csrfMiddleware} from './csrfMiddleware';
+export {default as rateLimitMiddleware} from './rateLimitMiddleware';
 export {default as sessionMiddleware} from './sessionMiddleware';
 export {default as webpackSmartMiddleware} from './webpackSmartMiddleware';

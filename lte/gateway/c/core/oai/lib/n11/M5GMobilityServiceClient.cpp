@@ -65,7 +65,13 @@ static void handle_allocate_ipv4_address_status(
   memcpy(amf_ip_allocation_response_p->gnb_gtp_teid_ip_addr,
          gnb_gtp_teid_ip_addr, gnb_gtp_teid_ip_addr_len);
 
-  memcpy(amf_ip_allocation_response_p->apn, apn, strlen(apn) + 1);
+  size_t apn_len = strlen(apn);
+  if (apn_len >= sizeof(amf_ip_allocation_response_p->apn)) {
+    OAILOG_ERROR(LOG_AMF_APP, "APN too long (%zu bytes), dropping IPv4v6 allocation response\n", apn_len);
+    itti_free(ITTI_MSG_ORIGIN_ID(message_p), message_p);
+    return;
+  }
+  memcpy(amf_ip_allocation_response_p->apn, apn, apn_len + 1);
 
   if (status.ok()) {
     amf_ip_allocation_response_p->result = SGI_STATUS_OK;
@@ -105,7 +111,13 @@ static void handle_allocate_ipv6_address_status(
   memcpy(amf_ip_allocation_response_p->gnb_gtp_teid_ip_addr,
          gnb_gtp_teid_ip_addr, gnb_gtp_teid_ip_addr_len);
 
-  memcpy(amf_ip_allocation_response_p->apn, apn, strlen(apn) + 1);
+  size_t apn_len = strlen(apn);
+  if (apn_len >= sizeof(amf_ip_allocation_response_p->apn)) {
+    OAILOG_ERROR(LOG_AMF_APP, "APN too long (%zu bytes), dropping IPv6 allocation response\n", apn_len);
+    itti_free(ITTI_MSG_ORIGIN_ID(message_p), message_p);
+    return;
+  }
+  memcpy(amf_ip_allocation_response_p->apn, apn, apn_len + 1);
 
   if (status.ok()) {
     amf_ip_allocation_response_p->result = SGI_STATUS_OK;
@@ -146,7 +158,13 @@ static void handle_allocate_ipv4v6_address_status(
   memcpy(amf_ip_allocation_response_p->gnb_gtp_teid_ip_addr,
          gnb_gtp_teid_ip_addr, gnb_gtp_teid_ip_addr_len);
 
-  memcpy(amf_ip_allocation_response_p->apn, apn, strlen(apn) + 1);
+  size_t apn_len = strlen(apn);
+  if (apn_len >= sizeof(amf_ip_allocation_response_p->apn)) {
+    OAILOG_ERROR(LOG_AMF_APP, "APN too long (%zu bytes), dropping IPv4v6 allocation response\n", apn_len);
+    itti_free(ITTI_MSG_ORIGIN_ID(message_p), message_p);
+    return;
+  }
+  memcpy(amf_ip_allocation_response_p->apn, apn, apn_len + 1);
 
   if (status.ok()) {
     amf_ip_allocation_response_p->result = SGI_STATUS_OK;

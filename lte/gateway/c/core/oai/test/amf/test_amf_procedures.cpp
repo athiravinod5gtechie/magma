@@ -82,8 +82,8 @@ class AMFAppProcedureTest : public ::testing::Test {
                  .mnc_digit1 = 4};
 
   itti_amf_decrypted_msin_info_ans_t decrypted_msin = {
-      .msin = {'9', '7', '6', '5', '4', '5', '6', '6', '0'},
-      .msin_length = 10,
+      .msin = {0x79, 0x56, 0x54, 0x66, 0x00},
+      .msin_length = 5,
       .result = 1,
       .ue_id = 1};
 
@@ -2789,6 +2789,7 @@ TEST_F(AMFAppProcedureTest, SctpShutWithServiceRequest) {
                                         NGAP_INITIAL_CONTEXT_SETUP_REQ,
                                         NGAP_PDUSESSION_RESOURCE_SETUP_REQ,
                                         NGAP_PDUSESSIONRESOURCE_REL_REQ,
+                                        NGAP_UE_CONTEXT_RELEASE_COMMAND,
                                         AMF_APP_NGAP_AMF_UE_ID_NOTIFICATION,
                                         NGAP_NAS_DL_DATA_REQ,
                                         NGAP_UE_CONTEXT_RELEASE_COMMAND,
@@ -2883,7 +2884,7 @@ TEST_F(AMFAppProcedureTest, SctpShutWithServiceRequest) {
   int res = RETURNerror;
 
   // Check the states of UE
-  res = check_ue_context_state(ue_id, REGISTERED_CONNECTED, M5GCM_IDLE);
+  res = check_ue_context_state(ue_id, REGISTERED_IDLE, M5GCM_IDLE);
   EXPECT_TRUE(res == RETURNok);
 
   // Service Request
@@ -3324,6 +3325,7 @@ TEST_F(AMFAppProcedureTest, GnbInitiatedNGReset) {
                                         NGAP_NAS_DL_DATA_REQ,
                                         NGAP_NAS_DL_DATA_REQ,
                                         NGAP_INITIAL_CONTEXT_SETUP_REQ,
+                                        NGAP_UE_CONTEXT_RELEASE_COMMAND,
                                         NGAP_GNB_INITIATED_RESET_ACK,
                                         NGAP_NAS_DL_DATA_REQ,
                                         NGAP_UE_CONTEXT_RELEASE_COMMAND,

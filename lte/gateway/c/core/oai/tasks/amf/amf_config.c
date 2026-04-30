@@ -65,7 +65,7 @@ void nas5g_config_init(nas5g_config_t* nas_conf) {
   nas_conf->force_reject_tau = true;
   nas_conf->force_reject_sr = true;
   nas_conf->disable_esm_information = false;
-  nas_conf->enable_IMS_VoPS_3GPP = false;
+  nas_conf->enable_IMS_VoPS_3GPP = true;
 }
 
 /***************************************************************************
@@ -355,8 +355,8 @@ int amf_config_parse_file(amf_config_t* config_pP,
           }
           config_pP->plmn_support_list.plmn_support_count += 1;
         }  // If MCC/MNC/Slice Information is found
-      }    // For the number of entries in the list for PLMN SUPPORT
-    }      // PLMN_SUPPORT LIST is present
+      }  // For the number of entries in the list for PLMN SUPPORT
+    }  // PLMN_SUPPORT LIST is present
 
     // enable VoNR support
     if ((config_setting_lookup_string(

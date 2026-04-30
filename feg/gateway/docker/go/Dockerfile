@@ -13,14 +13,22 @@
 # Development image for test, precommit, etc.
 # -----------------------------------------------------------------------------
 ARG baseImage="ubuntu:focal"
-FROM ${baseImage} as base
+FROM ${baseImage} AS base
 
 # Add the magma apt repo
 RUN apt-get update && \
     apt-get install -y apt-utils software-properties-common apt-transport-https
 # Add the magma apt repo
 COPY keys/linux_foundation_registry_key.asc /etc/apt/trusted.gpg.d/magma.asc
-RUN add-apt-repository "deb https://linuxfoundation.jfrog.io/artifactory/magma-packages-test focal-ci main"
+
+#[TODO_GPG_KEY_WORKAROUND]Temporary steps to be removed once GPG public key issue has been fixed.
+#RUN add-apt-repository "deb https://linuxfoundation.jfrog.io/artifactory/magma-packages-test focal-ci main"
+RUN echo "deb [trusted=yes] https://linuxfoundation.jfrog.io/artifactory/magma-packages-test focal-ci main" \
+    > /etc/apt/sources.list.d/magma.list
+
+#[TODO_GPG_KEY_WORKAROUND]Temporary steps to be removed once GPG public key issue has been fixed.
+RUN echo "Acquire::AllowInsecureRepositories true;" > /etc/apt/apt.conf.d/99AllowInsecureRepositories && \
+    echo "APT::Get::AllowUnauthenticated true;" >> /etc/apt/apt.conf.d/99AllowInsecureRepositories
 
 # Install the runtime deps.
 RUN apt-get update && apt-get install -y \
@@ -52,9 +60,9 @@ RUN apt-get update && apt-get install -y \
 
 # Golang
 WORKDIR /usr/local
-ARG GOLANG_VERSION="1.20.1"
+ARG GOLANG_VERSION="1.21.0"
 RUN GO_TARBALL="go${GOLANG_VERSION}.linux-amd64.tar.gz" \
- && curl https://linuxfoundation.jfrog.io/artifactory/magma-blob/${GO_TARBALL} --remote-name --location \
+ && curl https://golang.org/dl/${GO_TARBALL} --remote-name --location \
  && tar -xzf ${GO_TARBALL} \
  && ln -s /usr/local/go/bin/go /usr/local/bin/go \
  && ln -s /usr/local/go/bin/gofmt /usr/local/bin/gofmt \
@@ -118,7 +126,7 @@ COPY orc8r/gateway/go $MAGMA_ROOT/orc8r/gateway/go
 # -----------------------------------------------------------------------------
 # Builder image with binaries
 # -----------------------------------------------------------------------------
-FROM base as builder
+FROM base AS builder
 # Enable make gen if proto gen is required
 # RUN make -C $MAGMA_ROOT/feg/gateway gen
 RUN make -C $MAGMA_ROOT/feg/gateway build
@@ -129,7 +137,7 @@ RUN ./run.sh build
 # -----------------------------------------------------------------------------
 # Go-cache base image
 # -----------------------------------------------------------------------------
-FROM ${baseImage} as gocache
+FROM ${baseImage} AS gocache
 COPY --from=builder /root/.cache /root/.cache
 
 # -----------------------------------------------------------------------------
